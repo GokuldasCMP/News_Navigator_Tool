@@ -2,5 +2,5 @@ python-dotenv
 streamlit
 tensorflow
 transformers
-generativeai
+google.generativeai as palm
 

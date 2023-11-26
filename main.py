@@ -8,22 +8,30 @@ import os
 load_dotenv()
 API_KEY = os.getenv("API_KEY")
 
-# Tokenization and Model Prediction
-
-tokenizer = AutoTokenizer.from_pretrained("GokulMundott/bert-fine-tuned-tokenize")
-model = TFAutoModelForSequenceClassification.from_pretrained('GokulMundott/bert-fine-tuned-news_cat')
-
-# Streamlit app
-st.title("News Navigator 🧭")
-user_input = st.text_area("If you have multiple articles seperate it with pipe symbol(|):")
-classify_button = st.button("Classify")
-
-
 # Define categories before using them
 categories = ["Business", "Entertainment", "Politics", "Sports", "Tech"]
 
+# Define a function to load the tokenizer with caching
+@st.cache_data
+def load_tokenizer():
+    return AutoTokenizer.from_pretrained("GokulMundott/bert-fine-tuned-tokenize")
+
+# Define a function to load the model with caching
+@st.cache_resource
+def load_model():
+    return TFAutoModelForSequenceClassification.from_pretrained('GokulMundott/bert-fine-tuned-news_cat')
+
+# Streamlit app
+st.title("News Navigator 🧭")
+user_input = st.text_area("If you have multiple articles separate them with the pipe symbol (|):")
+classify_button = st.button("Classify")
+
 # Move this block inside the if block
 if classify_button and user_input:
+    # Load tokenizer and model
+    tokenizer = load_tokenizer()
+    model = load_model()
+
     # Split the input into a list of articles
     articles = [article.strip() for article in user_input.split('|')]
 
@@ -43,7 +51,7 @@ if classify_button and user_input:
         # Map numerical category to label (adjust as needed)
         predicted_label = categories[predicted_category]
 
-         # Display the result with st.info
+        # Display the result with st.info
         st.info(f"The predicted category for Article {idx} is: {predicted_label}")
 
         # Use the article in the prompt for summary generation
@@ -62,5 +70,5 @@ if classify_button and user_input:
         summary = completion.result
 
         # Display the summary on the Streamlit app
-        st.subheader("Generated Summary")
-        st.info(f"Generated Summary for Article {idx}:\n{summary}")
+        st.subheader(f"Generated Summary for Article {idx}")
+        st.info(summary)

@@ -27,19 +27,20 @@ def load_model():
     return TFAutoModelForSequenceClassification.from_pretrained('GokulMundott/bert-fine-tuned-news_cat')
 
 
-
 # Animated compass symbol
 st.title("News Navigator 🧭")
 
-compass_symbol = st.empty()  # Create an empty space to display the compass symbol
+attention_message = st.empty()  # Create an empty space for the attention message
 
-# Animate the compass symbol
-for i in range(3):  # You can adjust the number of frames as needed
-    compass_symbol.text(f"🧭 Turning... {i + 1}")
+# Animate the attention message
+for i in range(5):  # You can adjust the number of frames as needed
+    attention_message.text(f"👈 Please go to the sidebar for instructions 👈")
     time.sleep(0.5)  # Adjust the sleep duration for the desired speed
 
-# Clear the animated compass symbol
-compass_symbol.empty()
+# Clear the animated attention message
+attention_message.empty()
+
+# The rest of your code...
 
 # Add instructions and project details to the sidebar
 with st.sidebar:

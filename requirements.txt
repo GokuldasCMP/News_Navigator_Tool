@@ -3,4 +3,4 @@ streamlit
 tensorflow
 transformers
 google.generativeai
-spacy==3.7.2
+spacy==3.1.3

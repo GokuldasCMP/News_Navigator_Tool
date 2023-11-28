@@ -35,15 +35,16 @@ attention_message = st.empty()  # Create an empty space for the attention messag
 # Animate the attention message
 for i in range(5):  # You can adjust the number of frames as needed
     attention_message.text(f"👈 Please go to the sidebar for instructions 👈")
-    time.sleep(0.5)  # Adjust the sleep duration for the desired speed
+    time.sleep(0.75)  # Adjust the sleep duration for the desired speed
 
 # Clear the animated attention message
 attention_message.empty()
 
-# The rest of your code...
+
 
 # Add instructions and project details to the sidebar
 with st.sidebar:
+    
     st.markdown("<h2 style='color: #3366ff;'>Welcome to News Navigator 🧭</h2>", unsafe_allow_html=True)
 
     st.write("News Navigator is a tool designed to analyze and classify news articles. "
@@ -61,11 +62,11 @@ with st.sidebar:
 
     st.markdown("<h3 style='color: #3366ff;'>Project Details:</h3>", unsafe_allow_html=True)
     st.write("This project leverages advanced language models and technologies, including:")
-    st.markdown("- **BERT-fine-tuned Tokenizer:** Tokenizes input articles for analysis.")
-    st.markdown("- **BERT-fine-tuned News Classification Model:** Predicts categories (Business, Entertainment, Politics, Sports, Tech).")
+    st.markdown("- **DistillBERT-fine-tuned Tokenizer:** Tokenizes input articles for analysis.")
+    st.markdown("- **DistillBERT-fine-tuned News Classification Model:** Predicts categories (Business, Entertainment, Politics, Sports, Tech).")
     st.markdown("- **spaCy NLP Model:** Performs Named Entity Recognition (NER) on entities like locations, persons, and organizations.")
-    st.markdown("- **TextBison Sentiment Analysis Model (palm2):** Analyzes sentiment in the context of each news article.")
-    st.markdown("- **TextBison Summary Generation Model (palm2):** Generates concise summaries of the given news articles.")
+    st.markdown("- **TextBison-001 Model (PaLM 2):** Analyzes sentiment in the context of each news article.")
+    st.markdown("- **TextBison-001 Model (PaLM 2):** Generates concise summaries of the given news articles.")
 
     # Note about the categories with HTML styling
     st.markdown("<div style='color: #3366ff; margin-top: 20px; font-style: italic;'>"

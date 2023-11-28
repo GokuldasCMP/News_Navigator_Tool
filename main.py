@@ -93,6 +93,7 @@ user_input = st.text_area("If you have multiple articles separate them with the 
 
 classify_button = st.button("Classify")
 
+
 # Move this block inside the if block
 if classify_button and user_input:
     # Load tokenizer and model
@@ -102,84 +103,90 @@ if classify_button and user_input:
     # Split the input into a list of articles
     articles = [article.strip() for article in user_input.split('|')]
 
-    # Process each article
-    for idx, article in enumerate(articles, start=1):  # Start index at 1
-        # Tokenize and predict category
-        inputs = tokenizer(article,
-                           truncation=True,
-                           padding=True,
-                           return_tensors="tf")
-        outputs = model(inputs["input_ids"])[0]
-        predicted_category = tf.argmax(outputs, axis=1).numpy()[0]
+    # Check if the input articles are valid
+    valid_articles = [article for article in articles if len(article.split()) > 10]  # Adjust the threshold as needed
 
-        # Ensure predicted_category is within the valid range of categories
-        predicted_category = min(predicted_category, len(categories) - 1)
+    if not valid_articles:
+        st.warning("Please enter valid articles. Nonsensical input or very short articles detected.")
+    else:
+        # Process each article
+        for idx, article in enumerate(valid_articles, start=1):  # Start index at 1
+            # Tokenize and predict category
+            inputs = tokenizer(article,
+                               truncation=True,
+                               padding=True,
+                               return_tensors="tf")
+            outputs = model(inputs["input_ids"])[0]
+            predicted_category = tf.argmax(outputs, axis=1).numpy()[0]
 
-        # Map numerical category to label (adjust as needed)
-        predicted_label = categories[predicted_category]
+            # Ensure predicted_category is within the valid range of categories
+            predicted_category = min(predicted_category, len(categories) - 1)
 
-        # Display the result with st.info
-        st.info(f"The predicted category for Article {idx} is: {predicted_label}")
+            # Map numerical category to label (adjust as needed)
+            predicted_label = categories[predicted_category]
 
-                # Use spaCy for named entity recognition
-        doc = nlp(article)  # Create a new spaCy NLP object for each article
-        entities = [(ent.text, ent.label_) for ent in doc.ents]
+            # Display the result with st.info
+            st.info(f"The predicted category for Article {idx} is: {predicted_label}")
 
-        # Filter entities to show only 'GPE', 'PERSON', and 'ORG'
-        filtered_entities = [(ent, label) for ent, label in entities if label in ['GPE', 'PERSON', 'ORG']]
+            # Use spaCy for named entity recognition
+            doc = nlp(article)  # Create a new spaCy NLP object for each article
+            entities = [(ent.text, ent.label_) for ent in doc.ents]
 
-        # Display named entity recognition result as a table
-        st.subheader(f"Named Entity Recognition for Article {idx}")
-        st.table(filtered_entities)
+            # Filter entities to show only 'GPE', 'PERSON', and 'ORG'
+            filtered_entities = [(ent, label) for ent, label in entities if label in ['GPE', 'PERSON', 'ORG']]
 
-        # Sentiment Analysis Prompt
-        sentiment_prompt = f'''Consider the context of the news article and analyze its sentiment:\n{article}'''
+            # Display named entity recognition result as a table
+            st.subheader(f"Named Entity Recognition for Article {idx}")
+            st.table(filtered_entities)
 
-        # Use the article in the prompt for summary generation
-        palm.configure(api_key=API_KEY)
-        sentiment_model_id = 'models/text-bison-001'
+            # Sentiment Analysis Prompt
+            sentiment_prompt = f'''Consider the context of the news article and analyze its sentiment:\n{article}'''
 
-        sentiment_completion = palm.generate_text(
-            model=sentiment_model_id,
-            prompt=sentiment_prompt,
-            temperature=0.0,
-            max_output_tokens=500,
-            candidate_count=1)
+            # Use the article in the prompt for summary generation
+            palm.configure(api_key=API_KEY)
+            sentiment_model_id = 'models/text-bison-001'
 
-        sentiment_result = sentiment_completion.result
+            sentiment_completion = palm.generate_text(
+                model=sentiment_model_id,
+                prompt=sentiment_prompt,
+                temperature=0.0,
+                max_output_tokens=500,
+                candidate_count=1)
 
-        # Display the sentiment on the Streamlit app
-        st.subheader(f"Sentiment Analysis for Article {idx}")
+            sentiment_result = sentiment_completion.result
 
-        # Color-coded sentiment display
-        if "positive" in sentiment_result.lower():
-            st.success(sentiment_result)
-        elif "negative" in sentiment_result.lower():
-            st.error(sentiment_result)
-        else:
-            st.info(sentiment_result)
+            # Display the sentiment on the Streamlit app
+            st.subheader(f"Sentiment Analysis for Article {idx}")
 
-        # Summary Generation Prompt
-        summary_prompt = f'''I will give you a news article. Study the news article and give a summary of it within 100 words.\n{article}'''
-        model_id = 'models/text-bison-001'
+            # Color-coded sentiment display
+            if "positive" in sentiment_result.lower():
+                st.success(sentiment_result)
+            elif "negative" in sentiment_result.lower():
+                st.error(sentiment_result)
+            else:
+                st.info(sentiment_result)
 
-        completion = palm.generate_text(
-            model=model_id,
-            prompt=f"{article}\n{summary_prompt}",
-            temperature=0.0,
-            max_output_tokens=500,
-            candidate_count=1)
+            # Summary Generation Prompt
+            summary_prompt = f'''I will give you a news article. Study the news article and give a summary of it within 100 words.\n{article}'''
+            model_id = 'models/text-bison-001'
 
-        summary = completion.result
+            completion = palm.generate_text(
+                model=model_id,
+                prompt=summary_prompt,
+                temperature=0.0,
+                max_output_tokens=500,
+                candidate_count=1)
 
-        # Display the summary on the Streamlit app
-        st.subheader(f"Generated Summary for Article {idx}")
+            summary = completion.result
 
-        # Styled box for summary display with theme-aware background color
-        background_color = st.get_option("theme.backgroundColor")
-        border_color = "#3366ff"  # Adjust as needed
+            # Display the summary on the Streamlit app
+            st.subheader(f"Generated Summary for Article {idx}")
 
-        st.markdown(
-            f"<div style='border: 1px solid {border_color}; border-radius: 10px; padding: 10px; background-color: {background_color};'>{summary}</div>",
-            unsafe_allow_html=True
-        )
+            # Styled box for summary display with theme-aware background color
+            background_color = st.get_option("theme.backgroundColor")
+            border_color = "#3366ff"  # Adjust as needed
+
+            st.markdown(
+                f"<div style='border: 1px solid {border_color}; border-radius: 10px; padding: 10px; background-color: {background_color};'>{summary}</div>",
+                unsafe_allow_html=True
+            )

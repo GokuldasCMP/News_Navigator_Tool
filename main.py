@@ -79,7 +79,7 @@ with st.sidebar:
                 "</div>", unsafe_allow_html=True)
     
     # Add contact information at the end
-    st.markdown("----")
+    st.markdown("---")
     st.subheader("Contact Information:")
     st.write("For any inquiries or feedback, feel free to reach out:")
     st.write("📧 Email: [gokuldas127199544@gmail.com](mailto:gokuldas127199544@gmail.com)")

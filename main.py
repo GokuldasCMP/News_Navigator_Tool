@@ -1,6 +1,7 @@
 import streamlit as st
 from transformers import AutoTokenizer, TFAutoModelForSequenceClassification
 import tensorflow as tf
+import tf_keras as keras 
 import google.generativeai as palm
 from dotenv import load_dotenv
 import os
@@ -27,7 +28,6 @@ def load_model():
     return TFAutoModelForSequenceClassification.from_pretrained('GokulMundott/bert-fine-tuned-news_cat')
 
 
-# Animated compass symbol
 st.title("News Navigator 🧭")
 
 attention_message = st.empty()  # Create an empty space for the attention message
@@ -159,12 +159,13 @@ if classify_button and user_input:
             st.subheader(f"Sentiment Analysis for Article {idx}")
 
             # Color-coded sentiment display
-            if "positive" in sentiment_result.lower():
+            if isinstance(sentiment_result, str) and "positive" in sentiment_result.lower():
                 st.success(sentiment_result)
-            elif "negative" in sentiment_result.lower():
+            elif isinstance(sentiment_result, str) and "negative" in sentiment_result.lower():
                 st.error(sentiment_result)
             else:
                 st.info(sentiment_result)
+
 
             # Summary Generation Prompt
             summary_prompt = f'''I will give you a news article. Study the news article and give a summary of it within 100 words.\n{article}'''

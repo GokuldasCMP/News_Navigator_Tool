@@ -1,6 +1,5 @@
 import streamlit as st
 import tensorflow as tf
-import tf_keras as keras  # Ensure this import works without errors
 from transformers import AutoTokenizer, TFAutoModelForSequenceClassification
 import google.generativeai as palm
 from dotenv import load_dotenv

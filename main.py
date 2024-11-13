@@ -1,7 +1,7 @@
 import streamlit as st
 import tensorflow as tf
 from transformers import AutoTokenizer, TFAutoModelForSequenceClassification
-import google.generativeai as palm
+import google.generativeai as genai
 from dotenv import load_dotenv
 import os
 import spacy
@@ -141,18 +141,12 @@ if classify_button and user_input:
             # Sentiment Analysis Prompt
             sentiment_prompt = f'''Consider the context of the news article and analyze its sentiment:\n{article}'''
 
-            # Use the article in the prompt for summary generation
-            palm.configure(api_key=API_KEY)
-            sentiment_model_id = 'models/text-bison-001'
+            # Use the article in the prompt for sentiment generation
+            genai.configure(api_key=API_KEY)
+            sentiment_model = genai.GenerativeModel("gemini-1.5-flash")
 
-            sentiment_completion = palm.generate_text(
-                model=sentiment_model_id,
-                prompt=sentiment_prompt,
-                temperature=0.0,
-                max_output_tokens=500,
-                candidate_count=1)
-
-            sentiment_result = sentiment_completion.result
+            sentiment_response = sentiment_model.generate_content(sentiment_prompt)
+            sentiment_result = sentiment_response.text
 
             # Display the sentiment on the Streamlit app
             st.subheader(f"Sentiment Analysis for Article {idx}")
@@ -168,16 +162,8 @@ if classify_button and user_input:
 
             # Summary Generation Prompt
             summary_prompt = f'''I will give you a news article. Study the news article and give a summary of it within 100 words.\n{article}'''
-            model_id = 'models/text-bison-001'
-
-            completion = palm.generate_text(
-                model=model_id,
-                prompt=summary_prompt,
-                temperature=0.0,
-                max_output_tokens=500,
-                candidate_count=1)
-
-            summary = completion.result
+            summary_response = sentiment_model.generate_content(summary_prompt)
+            summary = summary_response.text
 
             # Display the summary on the Streamlit app
             st.subheader(f"Generated Summary for Article {idx}")
@@ -190,3 +176,4 @@ if classify_button and user_input:
                 f"<div style='border: 1px solid {border_color}; border-radius: 10px; padding: 10px; background-color: {background_color};'>{summary}</div>",
                 unsafe_allow_html=True
             )
+            

@@ -3,6 +3,6 @@ tensorflow
 transformers
 google-generativeai
 python-dotenv
-spacy
+spacy==3.5.0
 tf-keras
-en-core-web-sm
+en-core-web-sm==3.5.0

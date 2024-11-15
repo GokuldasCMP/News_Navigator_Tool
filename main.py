@@ -12,9 +12,6 @@ API_KEY = os.getenv("API_KEY")
 # Define categories before using them
 categories = ["Business", "Entertainment", "Politics", "Sports", "Tech"]
 
-# Load spaCy NLP model
-nlp = spacy.load("en_core_web_sm")
-
 # Define a function to load the tokenizer with caching
 @st.cache_data
 def load_tokenizer():

@@ -4,7 +4,6 @@ from transformers import AutoTokenizer, TFAutoModelForSequenceClassification
 import google.generativeai as genai
 from dotenv import load_dotenv
 import os
-import spacy
 import time
 
 load_dotenv()

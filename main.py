@@ -5,6 +5,7 @@ import google.generativeai as genai
 from dotenv import load_dotenv
 import os
 import time
+import pandas as pd
 
 load_dotenv()
 API_KEY = os.getenv("API_KEY")
@@ -131,7 +132,6 @@ if classify_button and user_input:
             genai.configure(api_key=API_KEY)
             ner_model=genai.GenerativeModel("gemini-1.5-flash")
 
-
             # Use the gemini-1.5-flash model to generate the NER results
             ner_response = ner_model.generate_content(ner_prompt)
             ner_result = ner_response.text
@@ -142,27 +142,27 @@ if classify_button and user_input:
             # Attempt to parse the result if it's in a structured format, otherwise display as is
             try:
                 # Assuming the output is structured as text with tuples, parse it
-                # For example, it might look like "(Suresh Raina, PERSON), (New Zealand, GPE)"
+                # For example, it might look like "(New York, GPE), (John Doe, PERSON)"
                 parsed_entities = eval(ner_result)  # Evaluate string into a list of tuples if it's safe and structured
                 if isinstance(parsed_entities, list) and all(isinstance(item, tuple) for item in parsed_entities):
-                    # Creating a formatted list of entities
-                    st.markdown("### Extracted Entities:")
-                    for entity, entity_type in parsed_entities:
-                        # Style each entity differently based on its type
-                        if entity_type == 'PERSON':
-                            st.markdown(f"🔹 **{entity}** (Person)")
-                        elif entity_type == 'GPE':
-                            st.markdown(f"🔸 **{entity}** (Location)")
-                        elif entity_type == 'ORGANIZATION':
-                            st.markdown(f"🔶 **{entity}** (Organization)")
-                        else:
-                            st.markdown(f"• **{entity}** ({entity_type})")
+                    # Filter entities to only include relevant types
+                    filtered_entities = [(ent, label) for ent, label in parsed_entities if label in ['GPE', 'PERSON', 'ORG']]
+                    # Display the filtered entities as tuples
+                    # Display entities as colored tags
+                    st.markdown("### Named Entities:")
+                    for entity, entity_type in filtered_entities:
+                        color = {"PERSON": "green", "GPE": "blue", "ORG": "orange"}.get(entity_type, "gray")
+                        st.markdown(
+                            f"<span style='background-color:{color}; color:white; padding:3px; border-radius:3px;'>{entity} ({entity_type})</span>",
+                            unsafe_allow_html=True,
+                        )
+
                 else:
                     # Directly show the raw output if parsing fails
-                    st.markdown(f"**Raw Output:** {ner_result}")
+                    st.write(ner_result)
             except Exception as e:
-                # Display raw output if parsing fails
-                st.markdown(f"**Raw Output:** {ner_result}")
+                # Directly show the raw output if parsing fails
+                st.write(ner_result)
 
 
             # Sentiment Analysis Prompt
